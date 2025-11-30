@@ -12,7 +12,7 @@ print("Please enjoy :3")
 
 _G.XYZDEBUG = false
 
-pc  all(function() getgenv().XYZ = true end)
+pcall(function() getgenv().XYZ = true end)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 function missing(t, f, fallback)
