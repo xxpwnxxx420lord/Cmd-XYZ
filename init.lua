@@ -4470,6 +4470,8 @@ CMDs[#CMDs + 1] = {NAME = 'loopfullbright / loopfb (CLIENT)', DESC = 'ya heard m
 CMDs[#CMDs + 1] = {NAME = 'day (CLIENT)', DESC = 'its so bright and nice and lovely and beachy trust'}
 CMDs[#CMDs + 1] = {NAME = 'night (CLIENT)', DESC = 'I hate black, so i hate the night'}
 CMDs[#CMDs + 1] = {NAME = 'nofog (CLIENT)', DESC = 'AHHHHHHHH I CAN FUCKING FINALLY SEE WOOO!'}
+CMDs[#CMDs + 1] = {NAME = 'dex / explorer' , DESC = 'I now see the games insides'}
+CMDs[#CMDs + 1] = {NAME = 'rspy / remotespy', DESC = 'I spy on remotes...'}
 
 -- below me are plugins
 CMDs[#CMDs + 1] = {NAME = 'healthbar [true / false]', DESC = 'made by @hitboyxx23'}
@@ -7132,8 +7134,13 @@ addcmd('nofog',{},function(args, speaker)
 	end
 end)
 
+addcmd('dex',{"explorer"},function(args, speaker)
+	    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+end)
 
-
+addcmd('rspy',{"remotespy"},function(args, speaker)
+	loadstring(game:HttpGetAsync("https://github.com/richie0866/remote-spy/releases/latest/download/RemoteSpy.lua"))()
+end)
 
 
 if IsOnMobile then
