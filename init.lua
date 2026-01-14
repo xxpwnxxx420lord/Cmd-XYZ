@@ -4472,12 +4472,18 @@ CMDs[#CMDs + 1] = {NAME = 'night (CLIENT)', DESC = 'I hate black, so i hate the 
 CMDs[#CMDs + 1] = {NAME = 'nofog (CLIENT)', DESC = 'AHHHHHHHH I CAN FUCKING FINALLY SEE WOOO!'}
 CMDs[#CMDs + 1] = {NAME = 'dex / explorer' , DESC = 'I now see the games insides'}
 CMDs[#CMDs + 1] = {NAME = 'rspy / remotespy', DESC = 'I spy on remotes...'}
+CMDs[#CMDs + 1] = {NAME = 'teleport / goto [username]', DESC = 'teleports you to a player.'}
+CMDs[#CMDs + 1] = {NAME = 'bang / rape [username]', DESC = 'teleports you to a player.'}
+CMDs[#CMDs + 1] = {NAME = 'unbang / unrape [username]', DESC = 'teleports you to a player.'}
+CMDs[#CMDs + 1] = {NAME = 'china / chinaify', DESC = 'Plays china, show china (Made by me :3)'}
 
 -- below me are plugins
 CMDs[#CMDs + 1] = {NAME = 'healthbar [true / false]', DESC = 'made by @hitboyxx23'}
 CMDs[#CMDs + 1] = {NAME = 'getboombox [player]', DESC = 'by @hxerohero'}
 CMDs[#CMDs + 1] = {NAME = 'ServerHopperGUI / SHG / SH', DESC = 'by Bazinga :3'}
 CMDs[#CMDs + 1] = {NAME = 'findplaces', DESC = 'by @someone'}
+CMDs[#CMDs + 1] = {NAME = 'bangtool / bt / bangt', DESC = 'by @bleedingiv'}
+CMDs[#CMDs + 1] = {NAME = 'bangandreturntool / bart / brt / bangrt', DESC = 'by @bleedingiv'}
 
 
 for i = 1, #CMDs do
@@ -6519,7 +6525,7 @@ addcmd('cframeflyspeed',{'cflyspeed'},function(args, speaker)
 	end
 end)
 
-addcmd('Close',{'exit'},function(args, speaker)
+addcmd('close',{'exit'},function(args, speaker)
 	game:GetService("CoreGui").CommandXYZ:Destroy()
     getgenv().XYZ = false
 end)
@@ -6540,6 +6546,7 @@ addcmd("healthbar",{},function(args,speaker)
 
     local players = game:GetService("Players")
     local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
     local function create(character)
         if not character then return end
@@ -7141,6 +7148,229 @@ end)
 addcmd('rspy',{"remotespy"},function(args, speaker)
 	loadstring(game:HttpGetAsync("https://github.com/richie0866/remote-spy/releases/latest/download/RemoteSpy.lua"))()
 end)
+
+addcmd('teleport',{'goto'},function(args, speaker)
+	local players = getPlayer(args[1], speaker)
+	for i,v in pairs(players)do
+		if Players[v].Character ~= nil then
+			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
+				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
+				wait(.1)
+			end
+			getRoot(speaker.Character).CFrame = getRoot(Players[v].Character).CFrame + Vector3.new(3,1,0)
+		end
+	end
+end)
+
+addcmd('copycframe', {"CpyCF"},function(args,speaker)
+	setclipboard(tostring(speaker.Character.HumanoidRootPart.CFrame))
+end)
+
+function getTorso(x)
+	x = x or Players.LocalPlayer.Character
+	return x:FindFirstChild("Torso") or x:FindFirstChild("UpperTorso") or x:FindFirstChild("LowerTorso") or x:FindFirstChild("HumanoidRootPart")
+end
+
+-- yay now it should work
+-- oh yeah, the cmds tech dont exist in the GUI...
+addcmd("bang", {"rape"}, function(args, speaker)
+	execCmd("unbang")
+	wait()
+	local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
+	bangAnim = Instance.new("Animation")
+	bangAnim.AnimationId = not r15(speaker) and "rbxassetid://148840371" or "rbxassetid://5918726674"
+	bang = humanoid:LoadAnimation(bangAnim)
+	bang:Play(0.1, 1, 1)
+	bang:AdjustSpeed(args[2] or 3)
+	bangDied = humanoid.Died:Connect(function()
+		bang:Stop()
+		bangAnim:Destroy()
+		bangDied:Disconnect()
+		bangLoop:Disconnect()
+	end)
+	if args[1] then
+		local players = getPlayer(args[1], speaker)
+		for _, v in pairs(players) do
+			local bangplr = Players[v].Name
+			local bangOffet = CFrame.new(0, 0, 1.1)
+			bangLoop = RunService.Stepped:Connect(function()
+				pcall(function()
+					local otherRoot = getTorso(Players[bangplr].Character)
+					getRoot(speaker.Character).CFrame = otherRoot.CFrame * bangOffet
+				end)
+			end)
+		end
+	end
+end)
+
+addcmd("unbang", {"unrape"}, function(args, speaker)
+	if bangDied then
+		bangDied:Disconnect()
+		bang:Stop()
+		bangAnim:Destroy()
+		bangLoop:Disconnect()
+	end
+end)
+
+
+addcmd('bangtool', {"bt", "bangt"},function(args,speaker)
+	local speakerChar = speaker.Character
+					if not speakerChar then return end
+					
+					local backpack = speaker:FindFirstChild("Backpack")
+					if backpack then
+						local oldTool = backpack:FindFirstChild("Bang Tool")
+						if oldTool then oldTool:Destroy() end
+					end
+					
+					local tool = Instance.new("Tool")
+					tool.Name = "Bang Tool"
+					tool.ToolTip = "Click to bang."
+					tool.RequiresHandle = false
+					tool.CanBeDropped = false
+					
+					local mouse = speaker:GetMouse()
+					
+					local function getPlayerFromClick(target)
+						if not target then return nil end
+						for _, player in ipairs(game.Players:GetPlayers()) do
+							local char = player.Character
+							if char and (target == char or target:IsDescendantOf(char)) then
+								return player
+							end
+						end
+						return nil
+					end
+					
+					local isBanging = false
+					
+					tool.Activated:Connect(function()
+						local targetPlayer = getPlayerFromClick(mouse.Target)
+						
+						if targetPlayer and not isBanging then
+							execCmd("bang "..targetPlayer.Name, speaker)
+							isBanging = true
+						else
+							execCmd("unbang", speaker)
+							isBanging = false
+						end
+					end)
+					tool.Unequipped:Connect(function()
+						if isBanging then
+							execCmd("unbang", speaker)
+						end
+					end)
+					
+					if backpack then
+						tool.Parent = backpack
+					end
+					
+					notify("Bang Tool", "Equip the tool from your backpack and click on players.")
+				end)
+
+addcmd('bangandreturntool', {"bart", "brt", "bangrt"},function(args,speaker)
+	local speakerChar = speaker.Character
+	  if not speakerChar or not speakerChar:FindFirstChild("HumanoidRootPart") then 
+		  return 
+	  end
+	  
+	  local backpack = speaker:FindFirstChild("Backpack")
+	  if backpack then
+		  local oldTool = backpack:FindFirstChild("Bang 'n Return Tool")
+		  if oldTool then oldTool:Destroy() end
+	  end
+	  
+	  local tool = Instance.new("Tool")
+	  tool.Name = "Bang 'n Return Tool"
+	  tool.ToolTip = "Click to bang, click away to return."
+	  tool.RequiresHandle = false
+	  tool.CanBeDropped = false
+	  
+	  local mouse = speaker:GetMouse()
+	  local returnPosition = nil
+	  local isBanging = false
+	  
+	  local function getPlayerFromClick(target)
+		  if not target then return nil end
+		  for _, player in ipairs(game.Players:GetPlayers()) do
+			  local char = player.Character
+			  if char and (target == char or target:IsDescendantOf(char)) then
+				  return player
+			  end
+		  end
+		  return nil
+	  end
+	  
+	  tool.Activated:Connect(function()
+		  local targetPlayer = getPlayerFromClick(mouse.Target)
+		  local rootPart = speakerChar:FindFirstChild("HumanoidRootPart")
+		  
+		  if not rootPart then return end
+		  
+		  if targetPlayer and not isBanging then
+			  returnPosition = rootPart.CFrame
+			  execCmd("bang "..targetPlayer.Name, speaker)
+			  isBanging = true
+		  else
+			  execCmd("unbang", speaker)
+			  isBanging = false
+			  
+			  if returnPosition then
+				  task.wait(0.1)
+				  rootPart.CFrame = returnPosition
+				  returnPosition = nil
+			  end
+		  end
+	  end)
+	  
+	  tool.Unequipped:Connect(function()
+		  if isBanging then
+			  execCmd("unbang", speaker)
+			  isBanging = false
+		  end
+	  end)
+	  
+	  if backpack then
+		  tool.Parent = backpack
+	  end
+	  
+	  notify("Bang 'n Return Tool", "Equip tool and click players. Click away to return.")
+end)
+
+addcmd('china', {'chinaify'}, function(args,speaker)
+	local alksjdlaksj = Instance.new("ScreenGui", game.CoreGui)
+	local chinesechicken = Instance.new("ImageLabel", alksjdlaksj)
+	chinesechicken.Name = "CHINA IS KEY TO EFF 255"
+	chinesechicken.Image = "rbxassetid://11960305449"
+	chinesechicken.Size = UDim2.new(1,0,1,0)
+	local aslkdjlasjdlaskjd = randomString()
+	local link = "https://github.com/xxpwnxxx420lord/discord-to-roblox-kicking/blob/main/mao%20zedong%20propaganda%20music%20Red%20Sun%20in%20the%20Sky.mp3?raw=true"
+	
+	local response = request({
+		Url = link,
+		Method = "GET"
+	})
+
+	writefile(aslkdjlasjdlaskjd..".mp3", response.Body)
+	local sounditem6767677 = Instance.new("Sound", game:GetService("Workspace"))
+	sounditem6767677.SoundId = getcustomasset(aslkdjlasjdlaskjd..".mp3")
+	sounditem6767677:Play()
+
+	local msgs = {
+		"JOIN THE CHINESE TODAY!",
+		"THE COMMONS ARE FOR THE ISTS!!!",
+		"THE CHINESE WILL TAKE OVER!!",
+		"CHINA FOREVER #COMMON",
+		"成语成语成语成语成语成语"
+	}
+	for i,v in pairs(msgs) do 
+		while task.wait(1) do  
+			local rbxgeneral = game:GetService("TextChatService"):FindFirstChild("TextChannels"):WaitForChild("RBXGeneral")
+			rbxgeneral:SendAsync(v)
+		end
+	end
+end)
+
 
 
 if IsOnMobile then
