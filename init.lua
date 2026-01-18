@@ -4476,6 +4476,7 @@ CMDs[#CMDs + 1] = {NAME = 'teleport / goto [username]', DESC = 'teleports you to
 CMDs[#CMDs + 1] = {NAME = 'bang / rape [username]', DESC = 'teleports you to a player.'}
 CMDs[#CMDs + 1] = {NAME = 'unbang / unrape [username]', DESC = 'teleports you to a player.'}
 CMDs[#CMDs + 1] = {NAME = 'china / chinaify', DESC = 'Plays china, show china (Made by me :3)'}
+CMDs[#CMDs + 1] = {NAME = 'copycframe / cpycf', DESC = 'it will copy your humanoidrootpart"s cframe.'}
 
 -- below me are plugins
 CMDs[#CMDs + 1] = {NAME = 'healthbar [true / false]', DESC = 'made by @hitboyxx23'}
